@@ -7,7 +7,7 @@ Place the Speed.Is.Life folder into Titanfall2\R2Northstar\mods\Speed.Is.Life. P
 ![reference](https://user-images.githubusercontent.com/73127554/147939780-098aaed5-f98b-452d-8563-95e587f06127.png)
 
 # Startup Args
-Server hosts! Add the following commands to your startup_args folder for some tweaks to the gamemode.
+Server hosts! Add the following commands to your startup_args file for some tweaks to the gamemode.
 
 Command `+sil_mode testing` to run multiplayer with one person.
 
