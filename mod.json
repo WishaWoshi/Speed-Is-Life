@@ -9,6 +9,10 @@
         {
             "Name": "sil_mode",
             "DefaultValue": ""
+        },
+        {
+            "Name" : "sil_tac",
+            "DefaultValue": "stim"
         }
     ],
 

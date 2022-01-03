@@ -1,7 +1,9 @@
 global function GamemodeSpeedIL_Init
 
 struct {
-	bool testmode // allows playing 1 player: no way to win
+	string testmode = "" // allows playing 1 player: no way to win
+	string tactical = ""
+	int minspeed = 0
 } file
 
 void function GamemodeSpeedIL_Init()
@@ -25,15 +27,15 @@ void function GamemodeSpeedIL_Init()
 	AddCallback_GameStateEnter( eGameState.Playing, TrackPlayerSpeed )
 	AddCallback_GameStateEnter( eGameState.WinnerDetermined, OnWinnerDetermined )
 
-	if ( GetConVarString( "sil_mode" ) == "testing" )
-	{
-		file.testmode = true
-	}
+	file.testmode = GetConVarString( "sil_mode" )
+	file.tactical = GetConVarString("sil_tac")
+
 }
 
 void function SpeedInitPlayer( entity player )
 {
 	thread SpeedInitPlayer_Threaded( player )
+
 }
 
 void function SpeedOnPlayerRespawned( entity player )
@@ -54,8 +56,17 @@ void function SpeedInitPlayer_Threaded( entity player )
 
 void function TrackPlayerSpeed()
 {
-	thread TrackPlayerSpeed_Threaded()
-	thread KillLowestScorer_Threaded()
+
+
+	if( (file.testmode == "sp" ) && (GetPlayerArray().len() == 1) )
+	{
+		thread sp_UpdatePlayerSpeed_Threaded()
+		thread sp_UpdateMinimumSpeed_Threaded()
+	}
+	else
+		thread TrackPlayerSpeed_Threaded()
+		thread KillLowestScorer_Threaded()
+
 }
 
 void function TrackPlayerSpeed_Threaded()
@@ -102,13 +113,8 @@ void function TrackPlayerSpeed_Threaded()
 			}
 
 		}
-<<<<<<< HEAD
 
-		if (!file.testmode)
-=======
-		
-		if ( alive == 1 )
->>>>>>> 680bffb57e517b282bab729e900b29d44e2c7e6b
+		if ( !( file.testmode == "testing") )
 		{
 			if ( alive == 1 )
 			{
@@ -122,20 +128,79 @@ void function TrackPlayerSpeed_Threaded()
 					}
 				}
 
-<<<<<<< HEAD
 				// hacky way to set team score
 				int score = GameRules_GetTeamScore( winner.GetTeam() )
 				AddTeamScore(winner.GetTeam(), -score )
 				AddTeamScore(winner.GetTeam(), 150)
 			}
-=======
-			// hacky way to set team score
-			int score = GameRules_GetTeamScore( winner.GetTeam() )
-			AddTeamScore(winner.GetTeam(), -score )
-			AddTeamScore(winner.GetTeam(), 150)
->>>>>>> 680bffb57e517b282bab729e900b29d44e2c7e6b
 		}
 
+	}
+}
+
+void function sp_UpdatePlayerSpeed_Threaded()
+{
+	entity player = GetPlayerArray()[0]
+
+	float length = Time()
+
+	while (true)
+	{
+
+		wait 0.1
+
+		if ( IsAlive(player) )
+		{
+
+
+			player.SetMaxHealth( 2000 )
+			player.SetHealth( 2000 )
+			// score tracking
+			vector velocity = player.GetVelocity() // tricky math stuffs i half understand
+			float playerVel = sqrt(velocity.x * velocity.x + velocity.y * velocity.y)
+			float velNormal = playerVel * 0.068544 // kph
+
+			// hacky way to set team score
+			int score = GameRules_GetTeamScore( player.GetTeam() )
+			AddTeamScore(player.GetTeam(), -score )
+			AddTeamScore(player.GetTeam(), velNormal.tointeger())
+
+
+			if ( GameRules_GetTeamScore( player.GetTeam() ) < file.minspeed )
+		{
+			player.SetHealth(0)
+
+			// hacky way to set team score
+			int score = GameRules_GetTeamScore( player.GetTeam() )
+			AddTeamScore(player.GetTeam(), -score )
+			AddTeamScore(player.GetTeam(), 150)
+
+			string message = "Too slow. You survived: " + length.tostring()
+			foreach ( entity player in GetPlayerArray() )
+				SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+
+			break
+		}
+
+		}
+	}
+}
+
+void function sp_UpdateMinimumSpeed_Threaded()
+{
+
+	entity player = GetPlayerArray()[0]
+
+	while (true)
+	{
+		wait 15
+		file.minspeed += 5
+
+
+
+		string message = "Minimum speed increased to " +file.minspeed.tostring()
+		foreach ( entity player in GetPlayerArray() )
+			SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
 	}
 }
 
@@ -199,7 +264,11 @@ void function UpdateLoadout( entity player )
 
 	player.GiveWeapon("mp_weapon_semipistol",["silencer"])
 	player.GiveOffhandWeapon( "mp_weapon_satchel", OFFHAND_ORDNANCE )
-	player.GiveOffhandWeapon( "mp_ability_heal", OFFHAND_SPECIAL )
+
+	if (file.tactical == "grapple")
+		player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_SPECIAL )
+	if (file.tactical == "stim")
+		player.GiveOffhandWeapon( "mp_ability_heal", OFFHAND_SPECIAL )
 
 }
 
@@ -207,8 +276,14 @@ void function OnWinnerDetermined()
 {
 	SetRespawnsEnabled( false )
 	SetKillcamsEnabled( false )
-<<<<<<< HEAD
-	PlayViperIntro()
+
+	if ( !( file.testmode == "sp" ) )
+	{
+		foreach ( entity player in GetPlayerArray() )
+		{
+			EmitSoundOnEntityOnlyToPlayer(player,player,"diag_sp_gibraltar_STS105_03_01_mcor_radCom")
+		}
+	}
 }
 
 void function PlayViperIntro()
@@ -218,6 +293,3 @@ void function PlayViperIntro()
 		EmitSoundOnEntityOnlyToPlayer(player,player,"diag_sp_bossFight_STS676_02_01_imc_viper")
 	}
 }
-=======
-}
->>>>>>> 680bffb57e517b282bab729e900b29d44e2c7e6b
