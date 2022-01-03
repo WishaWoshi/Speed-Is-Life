@@ -11,9 +11,9 @@ Server hosts! Add the following commands to your startup_args folder for some tw
 
 Command `+sil_mode testing` to run multiplayer with one person.
 
-(PLANNED) Command `+sil_mode sp` to run the dedicated singleplayer mode. 
+Command `+sil_mode sp` to run the dedicated singleplayer mode, where you need to stay above the minimum speed.
 
-(PLANNED) Command `+sil_tac grapple` to change the match tactical to the grapple. 
+Command `+sil_tac grapple` to change the match tactical to the grapple. 
 
 
 Good luck out there, pilots!
