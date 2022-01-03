@@ -1,5 +1,8 @@
 global function GamemodeSpeedIL_Init
 
+struct {
+	bool testmode // allows playing 1 player: no way to win
+} file
 
 void function GamemodeSpeedIL_Init()
 {
@@ -18,9 +21,14 @@ void function GamemodeSpeedIL_Init()
 	AddCallback_OnPlayerKilled( SpeedOnPlayerKilled )
 	AddCallback_OnPlayerRespawned( SpeedOnPlayerRespawned )
 
+	AddCallback_GameStateEnter( eGameState.Prematch, PlayViperIntro )
 	AddCallback_GameStateEnter( eGameState.Playing, TrackPlayerSpeed )
 	AddCallback_GameStateEnter( eGameState.WinnerDetermined, OnWinnerDetermined )
 
+	if ( GetConVarString( "sil_mode" ) == "testing" )
+	{
+		file.testmode = true
+	}
 }
 
 void function SpeedInitPlayer( entity player )
@@ -94,24 +102,27 @@ void function TrackPlayerSpeed_Threaded()
 			}
 
 		}
-		/*
-		if ( alive == 1 )
-		{
-			entity winner
-			foreach (entity player in players)
-			{
-				if ( IsAlive( player ) )
-				{
-					winner = player
-					break
-				}
-			}
 
-			// hacky way to set team score
-			int score = GameRules_GetTeamScore( winner.GetTeam() )
-			AddTeamScore(winner.GetTeam(), -score )
-			AddTeamScore(winner.GetTeam(), 150)
-		}*/
+		if (!file.testmode)
+		{
+			if ( alive == 1 )
+			{
+				entity winner
+				foreach (entity player in players)
+				{
+					if ( IsAlive( player ) )
+					{
+						winner = player
+						break
+					}
+				}
+
+				// hacky way to set team score
+				int score = GameRules_GetTeamScore( winner.GetTeam() )
+				AddTeamScore(winner.GetTeam(), -score )
+				AddTeamScore(winner.GetTeam(), 150)
+			}
+		}
 
 	}
 }
@@ -152,8 +163,10 @@ void function SpeedOnPlayerKilled( entity victim, entity attacker, var damageInf
 	string message = victim.GetPlayerName() + " couldn't take the heat."
 			foreach ( entity player in GetPlayerArray() )
 				SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+		EmitSoundOnEntityOnlyToPlayer (victim, victim, "diag_sp_bossFight_STS676_32_01_imc_viper")
 
-		return
+
+	return
 }
 
 void function UpdateLoadout( entity player )
@@ -165,6 +178,13 @@ void function UpdateLoadout( entity player )
 	foreach ( entity weapon in player.GetOffhandWeapons() )
 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
+	player.GiveWeapon("mp_weapon_epg",["jump_kit","pas_run_and_gun"])
+
+	foreach ( entity weapon in player.GetMainWeapons() )
+	{
+		 weapon.SetWeaponPrimaryAmmoCount(0)
+	}
+
 	player.GiveWeapon("mp_weapon_semipistol",["silencer"])
 	player.GiveOffhandWeapon( "mp_weapon_satchel", OFFHAND_ORDNANCE )
 	player.GiveOffhandWeapon( "mp_ability_heal", OFFHAND_SPECIAL )
@@ -175,4 +195,13 @@ void function OnWinnerDetermined()
 {
 	SetRespawnsEnabled( false )
 	SetKillcamsEnabled( false )
+	PlayViperIntro()
+}
+
+void function PlayViperIntro()
+{
+	foreach ( entity player in GetPlayerArray() )
+	{
+		EmitSoundOnEntityOnlyToPlayer(player,player,"diag_sp_bossFight_STS676_02_01_imc_viper")
+	}
 }

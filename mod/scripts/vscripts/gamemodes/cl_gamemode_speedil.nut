@@ -4,10 +4,13 @@ void function ClGamemodeSpeedIL_Init()
 {
     // add ffa gamestate asset
 	ClGameState_RegisterGameStateAsset( $"ui/gamestate_info_ffa.rpak" )
-
+	// "music_s2s_00b_unidentifiedbogey"
+	// "diag_sp_gibraltar_STS105_03_01_mcor_radCom"
+	// "diag_sp_bossFight_STS676_02_01_imc_viper"
 	// add music for mode, this is copied directly from the ffa/fra music registered in cl_music.gnut
-	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_INTRO, "music_mp_freeagents_intro", TEAM_IMC )
-	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_INTRO, "music_mp_freeagents_intro", TEAM_MILITIA )
+
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_INTRO, "music_s2s_00b_unidentifiedbogey", TEAM_IMC )
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_INTRO, "music_s2s_00b_unidentifiedbogey", TEAM_MILITIA )
 
 	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_WIN, "music_mp_freeagents_outro_win", TEAM_IMC )
 	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_WIN, "music_mp_freeagents_outro_win", TEAM_MILITIA )
@@ -23,4 +26,5 @@ void function ClGamemodeSpeedIL_Init()
 
 	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_LAST_MINUTE, "music_mp_freeagents_lastminute", TEAM_IMC )
 	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_LAST_MINUTE, "music_mp_freeagents_lastminute", TEAM_MILITIA )
+
 }

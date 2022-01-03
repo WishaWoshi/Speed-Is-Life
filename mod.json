@@ -5,6 +5,13 @@
     "LoadPriority": 1,
     "RequiredOnClient": true,
 
+    "ConVars":[
+        {
+            "Name": "sil_mode",
+            "DefaultValue": ""
+        }
+    ],
+
     "Scripts": [
         {
             "Path": "gamemodes/sh_gamemode_speedil.nut",
