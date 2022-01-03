@@ -30,6 +30,7 @@ void function SpeedInitPlayer( entity player )
 
 void function SpeedOnPlayerRespawned( entity player )
 {
+	UpdateLoadout( player )
 	player.SetMaxHealth( 2000 )
 	player.SetHealth( 2000 )
 }
@@ -63,6 +64,8 @@ void function TrackPlayerSpeed_Threaded()
 
 			if ( IsAlive( player ) )
 			{
+				player.SetMaxHealth( 2000 )
+				player.SetHealth( 2000 )
 				// score tracking
 				vector velocity = player.GetVelocity() // tricky math stuffs i half understand
 				float playerVel = sqrt(velocity.x * velocity.x + velocity.y * velocity.y)
@@ -91,7 +94,7 @@ void function TrackPlayerSpeed_Threaded()
 			}
 
 		}
-
+		/*
 		if ( alive == 1 )
 		{
 			entity winner
@@ -108,7 +111,7 @@ void function TrackPlayerSpeed_Threaded()
 			int score = GameRules_GetTeamScore( winner.GetTeam() )
 			AddTeamScore(winner.GetTeam(), -score )
 			AddTeamScore(winner.GetTeam(), 150)
-		}
+		}*/
 
 	}
 }
@@ -151,6 +154,21 @@ void function SpeedOnPlayerKilled( entity victim, entity attacker, var damageInf
 				SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
 
 		return
+}
+
+void function UpdateLoadout( entity player )
+{
+	// remove weapons
+	foreach ( entity weapon in player.GetMainWeapons() )
+		player.TakeWeaponNow( weapon.GetWeaponClassName() )
+
+	foreach ( entity weapon in player.GetOffhandWeapons() )
+		player.TakeWeaponNow( weapon.GetWeaponClassName() )
+
+	player.GiveWeapon("mp_weapon_semipistol",["silencer"])
+	player.GiveOffhandWeapon( "mp_weapon_satchel", OFFHAND_ORDNANCE )
+	player.GiveOffhandWeapon( "mp_ability_heal", OFFHAND_SPECIAL )
+
 }
 
 void function OnWinnerDetermined()
