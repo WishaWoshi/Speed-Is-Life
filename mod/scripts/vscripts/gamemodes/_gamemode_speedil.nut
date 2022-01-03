@@ -102,8 +102,13 @@ void function TrackPlayerSpeed_Threaded()
 			}
 
 		}
+<<<<<<< HEAD
 
 		if (!file.testmode)
+=======
+		
+		if ( alive == 1 )
+>>>>>>> 680bffb57e517b282bab729e900b29d44e2c7e6b
 		{
 			if ( alive == 1 )
 			{
@@ -117,11 +122,18 @@ void function TrackPlayerSpeed_Threaded()
 					}
 				}
 
+<<<<<<< HEAD
 				// hacky way to set team score
 				int score = GameRules_GetTeamScore( winner.GetTeam() )
 				AddTeamScore(winner.GetTeam(), -score )
 				AddTeamScore(winner.GetTeam(), 150)
 			}
+=======
+			// hacky way to set team score
+			int score = GameRules_GetTeamScore( winner.GetTeam() )
+			AddTeamScore(winner.GetTeam(), -score )
+			AddTeamScore(winner.GetTeam(), 150)
+>>>>>>> 680bffb57e517b282bab729e900b29d44e2c7e6b
 		}
 
 	}
@@ -195,6 +207,7 @@ void function OnWinnerDetermined()
 {
 	SetRespawnsEnabled( false )
 	SetKillcamsEnabled( false )
+<<<<<<< HEAD
 	PlayViperIntro()
 }
 
@@ -205,3 +218,6 @@ void function PlayViperIntro()
 		EmitSoundOnEntityOnlyToPlayer(player,player,"diag_sp_bossFight_STS676_02_01_imc_viper")
 	}
 }
+=======
+}
+>>>>>>> 680bffb57e517b282bab729e900b29d44e2c7e6b
