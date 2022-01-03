@@ -94,7 +94,7 @@ void function TrackPlayerSpeed_Threaded()
 			}
 
 		}
-		/*
+		
 		if ( alive == 1 )
 		{
 			entity winner
@@ -111,7 +111,7 @@ void function TrackPlayerSpeed_Threaded()
 			int score = GameRules_GetTeamScore( winner.GetTeam() )
 			AddTeamScore(winner.GetTeam(), -score )
 			AddTeamScore(winner.GetTeam(), 150)
-		}*/
+		}
 
 	}
 }
