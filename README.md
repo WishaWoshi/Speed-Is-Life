@@ -5,11 +5,13 @@ Welcome to Speed Is Life, a mod for the Titanfall 2 Northstar Client. Every 20 s
 Place the Speed.Is.Life folder into Titanfall2\R2Northstar\mods\Speed.Is.Life. Paste the contents of the localisation file included into Titanfall2\R2Northstar\mods\Northstar.Client\mod\resource\northstar_client_localisation_english.txt as seen here. ![reference](https://user-images.githubusercontent.com/73127554/147939780-098aaed5-f98b-452d-8563-95e587f06127.png)
 
 # Startup Args
-"sil_mode": ""          - Standard match (default)
-            "testing"   - Multiplayer match with one person. Removes win condition.
-            "sp"        - Singplayer match. (PLANNED)
+Server hosts! Add the following commands to your startup_args folder for some tweaks to the gamemode.
 
-"sil_tactical": "stim"    - Stim for tactical (default)
-                "grapple" - Grapple for tactical (PLANNED)
+Command `+sil_mode testing` to run multiplayer with one person.
+
+(PLANNED) Command `+sil_mode sp` to run the dedicated singleplayer mode. 
+
+(PLANNED) Command `+sil_tac grapple` to change the match tactical to the grapple. 
+
 
 Good luck out there, pilots!
