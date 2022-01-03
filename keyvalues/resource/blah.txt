@@ -1,0 +1,12 @@
+"lang"
+{
+	"Language" "english"
+	"Tokens"
+	{
+		"PL_speedil" "Speed is Life"
+		"PL_speedil_lobby" "Speed is Life Lobby"
+		"PL_speedil_desc" "Keep moving! Every 20 seconds, the slowest player dies. Be the last one standing to win!"
+		"PL_speedil_abbr" "SPEEDIL"
+		"GAMEMODE_SPEEDIL" "Speed is Life"
+	}
+}

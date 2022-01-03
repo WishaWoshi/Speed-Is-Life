@@ -1,0 +1,31 @@
+{
+    "Name": "Speed is Life",
+    "Description": "Slowest player dies every 20 seconds. Be the last one standing to win. Required on both Client and Server.",
+    "Version": "1.0.0",
+    "LoadPriority": 1,
+    "RequiredOnClient": true,
+
+    "Scripts": [
+        {
+            "Path": "gamemodes/sh_gamemode_speedil.nut",
+            "RunOn": "( CLIENT || SERVER ) && MP",
+            "ClientCallback": {
+                "Before": "Sh_GamemodeSpeedIL_Init"
+            },
+            "ServerCallback": {
+                "Before": "Sh_GamemodeSpeedIL_Init"
+            }
+        },
+        {
+            "Path": "gamemodes/_gamemode_speedil.nut",
+            "RunOn": "SERVER && MP"
+        },
+        {
+            "Path": "gamemodes/cl_gamemode_speedil.nut",
+            "RunOn": "CLIENT && MP"
+        }
+    ],
+    "Localisation": [
+        "resource/speedil_custom_%language%.txt"
+    ]
+}
