@@ -1,5 +1,5 @@
 # Speed Is Life
-Welcome to Speed Is Life, a mod for the Titanfall 2 Northstar Client. Every 20 seconds, the slowest player is eliminated. Be the last one standing to win! Requires at least 2 players.
+Welcome to Speed Is Life, a mod for the Titanfall 2 Northstar Client. Every 20 seconds, the slowest player is eliminated. Be the last one standing to win! If you are the only player in the server,  it will launch a dedicated singleplayer mode for that match.
 
 # Setup
 Place the Speed.Is.Life folder into Titanfall2\R2Northstar\mods\Speed.Is.Life. Paste the contents of the localisation file included into Titanfall2\R2Northstar\mods\Northstar.Client\mod\resource\northstar_client_localisation_english.txt as seen here.
@@ -9,9 +9,7 @@ Place the Speed.Is.Life folder into Titanfall2\R2Northstar\mods\Speed.Is.Life. P
 # Startup Args
 Server hosts! Add the following commands to your startup_args file for some tweaks to the gamemode.
 
-Command `+sil_mode testing` to run multiplayer with one person.
-
-Command `+sil_mode sp` to run the dedicated singleplayer mode, where you need to stay above the minimum speed.
+Command `+sil_mode testing` to run multiplayer with one person and override singleplayer.
 
 Command `+sil_tac grapple` to change the match tactical to the grapple. 
 
