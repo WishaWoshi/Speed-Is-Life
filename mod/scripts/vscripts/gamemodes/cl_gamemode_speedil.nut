@@ -7,6 +7,8 @@ void function ClGamemodeSpeedIL_Init()
 	// "music_s2s_00b_unidentifiedbogey"
 	// "diag_sp_gibraltar_STS105_03_01_mcor_radCom"
 	// "diag_sp_bossFight_STS676_02_01_imc_viper"
+	// "diag_sp_bossFight_STS676_09_01_imc_viper" -- Viper's got you in the pipe, 5x5
+	// "diag_sp_bossFight_STS676_02_01_imc_viper" -- I've got good tone
 	// add music for mode, this is copied directly from the ffa/fra music registered in cl_music.gnut
 
 	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_INTRO, "music_s2s_00b_unidentifiedbogey", TEAM_IMC )

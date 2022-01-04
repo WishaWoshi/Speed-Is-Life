@@ -58,10 +58,11 @@ void function TrackPlayerSpeed()
 {
 
 
-	if( (file.testmode == "sp" ) && (GetPlayerArray().len() == 1) )
+	if( !(file.testmode == "testing" ) && (GetPlayerArray().len() == 1) )
 	{
 		thread sp_UpdatePlayerSpeed_Threaded()
 		thread sp_UpdateMinimumSpeed_Threaded()
+		thread sp_Inform_Threaded()
 	}
 	else
 		thread TrackPlayerSpeed_Threaded()
@@ -138,11 +139,18 @@ void function TrackPlayerSpeed_Threaded()
 	}
 }
 
+void function sp_Inform_Threaded()
+{
+	string message = "15 seconds to get above 5 kph. Minimum speed."
+			foreach ( entity player in GetPlayerArray() )
+				SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+}
+
 void function sp_UpdatePlayerSpeed_Threaded()
 {
 	entity player = GetPlayerArray()[0]
 
-	float length = Time()
+	float start = Time()
 
 	while (true)
 	{
@@ -175,7 +183,7 @@ void function sp_UpdatePlayerSpeed_Threaded()
 			AddTeamScore(player.GetTeam(), -score )
 			AddTeamScore(player.GetTeam(), 150)
 
-			string message = "Too slow. You survived: " + length.tostring()
+			string message = "Too slow. You survived: " + ( Time() - start ).tointeger().tostring() + " seconds."
 			foreach ( entity player in GetPlayerArray() )
 				SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
 
@@ -238,8 +246,10 @@ void function KillLowestScorer_Threaded()
 void function SpeedOnPlayerKilled( entity victim, entity attacker, var damageInfo )
 {
 	string message = victim.GetPlayerName() + " couldn't take the heat."
-			foreach ( entity player in GetPlayerArray() )
-				SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+	foreach ( entity player in GetPlayerArray() )
+		SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+
+	if ( !(file.testmode == "sp")  )
 		EmitSoundOnEntityOnlyToPlayer (victim, victim, "diag_sp_bossFight_STS676_32_01_imc_viper")
 
 
@@ -277,13 +287,8 @@ void function OnWinnerDetermined()
 	SetRespawnsEnabled( false )
 	SetKillcamsEnabled( false )
 
-	if ( !( file.testmode == "sp" ) )
-	{
-		foreach ( entity player in GetPlayerArray() )
-		{
-			EmitSoundOnEntityOnlyToPlayer(player,player,"diag_sp_gibraltar_STS105_03_01_mcor_radCom")
-		}
-	}
+	PlayViperOutro()
+
 }
 
 void function PlayViperIntro()
@@ -291,5 +296,16 @@ void function PlayViperIntro()
 	foreach ( entity player in GetPlayerArray() )
 	{
 		EmitSoundOnEntityOnlyToPlayer(player,player,"diag_sp_bossFight_STS676_02_01_imc_viper")
+	}
+}
+
+void function PlayViperOutro()
+{
+	foreach ( entity player in GetPlayerArray() )
+	{
+		if ( IsAlive( player ) )
+		{
+			EmitSoundOnEntityOnlyToPlayer(player,player,"diag_sp_bossFight_STS678_02_01_imc_viper")
+		}
 	}
 }
