@@ -21,7 +21,7 @@ void function CreateGamemodeSpeedIL()
 	GameMode_SetColor( GAMEMODE_SPEEDIL, [147, 204, 57, 255] )
 
     AddPrivateMatchMode( GAMEMODE_SPEEDIL )
-
+	AddPrivateMatchModeSettingEnum( "#GAMEMODE_SPEEDIL", "sil_select_mode", [ "MinSpeed", "LastStanding" ], "1" )
 
 	GameMode_SetDefaultScoreLimits( GAMEMODE_SPEEDIL, 150, 0 )
 
