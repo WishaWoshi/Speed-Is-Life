@@ -1,6 +1,6 @@
 {
     "Name": "Speed is Life",
-    "Description": "Slowest player dies every 20 seconds. Be the last one standing to win./nWith less than 6 players, race to stay above the clock!\nRequired on both Client and Server.",
+    "Description": "Slowest player dies every 20 seconds. Be the last one standing to win. With less than 6 players, race to stay above the clock!\nRequired on both Client and Server.",
     "Version": "1.2.1",
     "LoadPriority": 1,
     "RequiredOnClient": true,

@@ -7,6 +7,7 @@ void function Sh_GamemodeSpeedIL_Init()
 {
     // create custom gamemode
     AddCallback_OnCustomGamemodesInit( CreateGamemodeSpeedIL )
+	AddCallback_OnRegisteringCustomNetworkVars( SpeedILRegisterNetworkVars )
 }
 
 void function CreateGamemodeSpeedIL()
@@ -39,4 +40,11 @@ void function CreateGamemodeSpeedIL()
 		GameMode_SetScoreCompareFunc( GAMEMODE_SPEEDIL, CompareAssaultScore )
 		GameMode_AddSharedInit( GAMEMODE_SPEEDIL, GamemodeFFA_Dialogue_Init )
 	#endif
+}
+
+void function SpeedILRegisterNetworkVars()
+{
+	Remote_RegisterFunction( "ServerCallback_SILRegisterUILabel" )
+	Remote_RegisterFunction( "ServerCallback_SILRegisterUIIndicator" )
+	Remote_RegisterFunction( "ServerCallback_SILUpdateUIColor" )
 }

@@ -4,7 +4,12 @@ struct {
 	string testmode = "" // allows playing 1 player: no way to win
 	string tactical = ""
 	entity lastdead
+
 	int minspeed = 0
+	int tick = 20
+
+	float start
+
 } file
 
 void function GamemodeSpeedIL_Init()
@@ -30,6 +35,7 @@ void function GamemodeSpeedIL_Init()
 
 	file.testmode = GetConVarString( "sil_mode" )
 	file.tactical = GetConVarString("sil_tac")
+	file.start = Time()
 
 }
 
@@ -60,19 +66,22 @@ void function SpeedInitPlayer_Threaded( entity player )
 		PlayerEarnMeter_SetMode( player, eEarnMeterMode.DISABLED )
 }
 
+
 void function TrackPlayerSpeed()
 {
-
-
-	if( !(file.testmode == "testing" ) && (GetPlayerArray().len() < 6 ) )
+	if( !( file.testmode == "testing" ) && ( GetPlayerArray().len() < 6 ) )
 	{
 		thread sp_UpdatePlayerSpeed_Threaded()
 		thread sp_UpdateMinimumSpeed_Threaded()
 		thread sp_Inform_Threaded()
+		print("sp mode")
 	}
 	else
+	{
 		thread TrackPlayerSpeed_Threaded()
 		thread KillLowestScorer_Threaded()
+		print("mp mode")
+	}
 
 }
 
@@ -97,6 +106,9 @@ void function TrackPlayerSpeed_Threaded()
 				vector velocity = player.GetVelocity() // tricky math stuffs i half understand
 				float playerVel = sqrt(velocity.x * velocity.x + velocity.y * velocity.y)
 				float velNormal = playerVel * 0.068544 // kph
+
+				Remote_CallFunction_NonReplay( player, "ServerCallback_SILRegisterUILabel",  3 )
+				Remote_CallFunction_NonReplay( player, "ServerCallback_SILRegisterUIIndicator", file.tick  )
 
 				player.SetPlayerGameStat( PGS_ASSAULT_SCORE, velNormal )
 
@@ -156,7 +168,6 @@ void function sp_Inform_Threaded()
 void function sp_UpdatePlayerSpeed_Threaded()
 {
 
-	float start = Time()
 	entity lastalive
 
 	while (true)
@@ -171,8 +182,23 @@ void function sp_UpdatePlayerSpeed_Threaded()
 			if ( IsAlive( player ) )
 			{
 
+				Remote_CallFunction_NonReplay( player, "ServerCallback_SILRegisterUILabel",  1 )
 
-
+				if (file.tick <= 5)
+				{
+					if (file.tick % 2)
+					{
+					Remote_CallFunction_NonReplay( player, "ServerCallback_SILRegisterUIIndicator", 420  )
+					}
+					else
+					{
+						Remote_CallFunction_NonReplay( player, "ServerCallback_SILRegisterUIIndicator", file.minspeed  )
+					}
+				}
+				else
+				{
+					Remote_CallFunction_NonReplay( player, "ServerCallback_SILRegisterUIIndicator", file.minspeed  )
+				}
 				player.SetMaxHealth( 2000 )
 				player.SetHealth( 2000 )
 				// score tracking
@@ -185,89 +211,127 @@ void function sp_UpdatePlayerSpeed_Threaded()
 				AddTeamScore(player.GetTeam(), -score )
 				AddTeamScore(player.GetTeam(), velNormal.tointeger())
 
+				player.SetPlayerGameStat( PGS_ASSAULT_SCORE, velNormal )
+
 				alive += 1
 				lastalive = player
 
 				if ( GameRules_GetTeamScore( player.GetTeam() ) < file.minspeed )
 				{
 
-					player.SetHealth(0)
-
-					// hacky way to set team score
-					int score = GameRules_GetTeamScore( player.GetTeam() )
-					AddTeamScore(player.GetTeam(), -score )
-					AddTeamScore(player.GetTeam(), 0)
-
-					string message = "Too slow. You survived: " + ( Time() - start ).tointeger().tostring() + " seconds."
-					foreach ( entity player in GetPlayerArray() )
-						SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
-
-					if ( alive == 1 )
-					{
-						int score = GameRules_GetTeamScore( lastalive.GetTeam() )
-						AddTeamScore(lastalive.GetTeam(), -score )
-						AddTeamScore(lastalive.GetTeam(), 150)
-						file.lastdead = player
-					}
+					thread sp_CoyoteFrame_Threaded(player,alive,lastalive)
 
 				}
 			}
 		}
 }
 
+void function sp_FlashScore_Threaded()
+{
+
+}
+
+void function sp_CoyoteFrame_Threaded( entity player, int alive, entity lastalive )
+{
+	Remote_CallFunction_NonReplay( player, "ServerCallback_SILUpdateUIColor", true )
+	wait 0.8
+
+	vector velocity = player.GetVelocity() // tricky math stuffs i half understand
+	float playerVel = sqrt(velocity.x * velocity.x + velocity.y * velocity.y)
+	float velNormal = playerVel * 0.068544 // kph
+
+	player.SetPlayerGameStat( PGS_ASSAULT_SCORE, velNormal )
+
+	if (velNormal < file.minspeed)
+	{
+		// hacky way to set team score
+		int score = GameRules_GetTeamScore( player.GetTeam() )
+		AddTeamScore(player.GetTeam(), -score )
+		AddTeamScore(player.GetTeam(), 0)
+
+		player.SetPlayerGameStat( PGS_ASSAULT_SCORE, 0 )
+
+		if (IsAlive(player))
+			player.SetHealth(0)
+
+		if ( alive == 1 )
+		{
+			int score = GameRules_GetTeamScore( lastalive.GetTeam() )
+			AddTeamScore(lastalive.GetTeam(), -score )
+			AddTeamScore(lastalive.GetTeam(), 150)
+			file.lastdead = player
+		}
+
+		Remote_CallFunction_NonReplay( player, "ServerCallback_SILUpdateUIColor", false )
+	}
+	else
+	{
+		Remote_CallFunction_NonReplay( player, "ServerCallback_SILUpdateUIColor", false )
+	}
+}
 
 void function sp_UpdateMinimumSpeed_Threaded()
 {
 
+	file.tick = 15
+
 	while (true)
 	{
-		wait 15
-		file.minspeed += 5
+		wait 1
 
+		file.tick -= 1
+		print(file.tick)
 
+		if (file.tick == 0)
+		{
+			file.tick = 15
+			file.minspeed += 5
 
-		string message = "Minimum speed increased to " +file.minspeed.tostring()
-		foreach ( entity player in GetPlayerArray() )
-			SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+			string message = "Minimum speed increased to " +file.minspeed.tostring()
+			foreach ( entity player in GetPlayerArray() )
+				SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+		}
 	}
 }
 
 void function KillLowestScorer_Threaded()
 {
 
-	float start = Time()
-
 	while (true)
 	{
-		wait 20
+		wait 1
+
+		file.tick -= 1
 
 		// find lowest scoring player
 		int lowestScore = 150 // max score
 		entity lowestPlayer
 
-		int alive = 0
-		foreach ( player in GetPlayerArray() )
+
+		if ( file.tick == 0 )
 		{
-			if ( IsAlive( player ) )
+			file.tick = 20
+
+			int alive = 0
+			foreach ( player in GetPlayerArray() )
 			{
-				alive += 1
-				if ( GameRules_GetTeamScore( player.GetTeam() ) < lowestScore )
+				if ( IsAlive( player ) )
 				{
-					lowestScore = GameRules_GetTeamScore( player.GetTeam() )
-					lowestPlayer = player
+					alive += 1
+					if ( GameRules_GetTeamScore( player.GetTeam() ) < lowestScore )
+					{
+						lowestScore = GameRules_GetTeamScore( player.GetTeam() )
+						lowestPlayer = player
+					}
 				}
 			}
-		}
 
-		if (alive > 1)
-		{
-			lowestPlayer.SetHealth(0)
-			file.lastdead = lowestPlayer
+			if (alive > 1)
+			{
+				lowestPlayer.SetHealth(0)
+				file.lastdead = lowestPlayer
 
-			string message = "Too slow. You survived: " + ( Time() - start ).tointeger().tostring() + " seconds."
-			foreach ( entity lowestPlayer in GetPlayerArray() )
-				SendHudMessage( lowestPlayer, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
-
+			}
 		}
 	}
 }
@@ -276,8 +340,13 @@ void function SpeedOnPlayerKilled( entity victim, entity attacker, var damageInf
 {
 	string message = victim.GetPlayerName() + " couldn't take the heat."
 	foreach ( entity player in GetPlayerArray() )
+	{
+		if (player == victim)
+		{
+			message =  "Too slow. You survived " + (Time() - file.start).tostring().tointeger() + " seconds."
+		}
 		SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
-
+	}
 	if ( !(file.testmode == "sp")  )
 		EmitSoundOnEntityOnlyToPlayer (victim, victim, "diag_sp_bossFight_STS676_32_01_imc_viper")
 
@@ -329,7 +398,7 @@ void function PlayViperOutro()
 {
 	foreach ( entity player in GetPlayerArray() )
 	{
-		if ( player == file.lastdead )
+		if ( !(player == file.lastdead) )
 		{
 			EmitSoundOnEntityOnlyToPlayer(player,player,"diag_sp_bossFight_STS678_02_01_imc_viper")
 		}
